@@ -163,6 +163,11 @@ state = {
     "entry1_spotted": False,
     "entry2_spotted": False,
     "last_spot_price": None,
+    
+    # ✅ DYNAMIC SL - will be updated when Target 1 hit
+    "dynamic_upper_sl": None,
+    "dynamic_lower_sl": None,
+    "sl_adjusted": False,
 }
 
 
@@ -335,20 +340,32 @@ def on_ticks(ws, ticks):
                 # LOT 1 EXIT AT TARGET 1
                 if state["entry1_triggered"] and not state["lot1_exited"] and price >= upper_target1:
                     safe_exit_lot1(ws, "TARGET 1 HIT", price)
-                    # ✅ TARGET 1 HIT - CLOSE BOT
-                    if not state["entry2_triggered"]:
+                    
+                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 PRICE
+                    if state["entry2_triggered"] and not state["sl_adjusted"]:
+                        state["dynamic_upper_sl"] = state["entry2_price"]
+                        state["sl_adjusted"] = True
+                        log(f"📍 SL ADJUSTED TO ENTRY 2 PRICE: {state['entry2_price']} (BREAKEVEN PROTECTION)")
+                    elif not state["entry2_triggered"]:
+                        # ✅ NO ENTRY 2, CLOSE BOT
                         close_bot("TARGET 1 HIT - NO ENTRY 2 - CLOSING BOT")
                         return
 
-                # LOT 2 EXIT AT TARGET 2 OR SL
+                # LOT 2 EXIT AT TARGET 2 OR ADJUSTED SL
                 if state["entry2_triggered"] and not state["lot2_exited"]:
+                    # Use dynamic SL if it's been adjusted
+                    current_sl = state["dynamic_upper_sl"] if state["sl_adjusted"] else upper_sl
+                    
                     if price >= upper_target2:
                         safe_exit_lot2(ws, "TARGET 2 HIT", price)
                         # ✅ TARGET 2 HIT - CLOSE BOT
                         close_bot("TARGET 2 HIT - CLOSING BOT")
                         return
-                    elif price <= upper_sl:
-                        safe_exit_lot2(ws, "STOPLOSS HIT", price)
+                    elif price <= current_sl:
+                        safe_exit_lot2(ws, f"STOPLOSS HIT (Adjusted SL: {current_sl})", price)
+                        # ✅ SL HIT - CLOSE BOT
+                        close_bot("STOPLOSS HIT ON LOT 2 - CLOSING BOT")
+                        return
 
                 # IF ENTRY1 ONLY, EXIT AT SL
                 if state["entry1_triggered"] and not state["entry2_triggered"] and not state["lot1_exited"] and price <= upper_sl:
@@ -414,20 +431,32 @@ def on_ticks(ws, ticks):
                 # LOT 1 EXIT AT TARGET 1
                 if state["entry1_triggered"] and not state["lot1_exited"] and price <= lower_target1:
                     safe_exit_lot1(ws, "TARGET 1 HIT", price)
-                    # ✅ TARGET 1 HIT - CLOSE BOT
-                    if not state["entry2_triggered"]:
+                    
+                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 PRICE
+                    if state["entry2_triggered"] and not state["sl_adjusted"]:
+                        state["dynamic_lower_sl"] = state["entry2_price"]
+                        state["sl_adjusted"] = True
+                        log(f"📍 SL ADJUSTED TO ENTRY 2 PRICE: {state['entry2_price']} (BREAKEVEN PROTECTION)")
+                    elif not state["entry2_triggered"]:
+                        # ✅ NO ENTRY 2, CLOSE BOT
                         close_bot("TARGET 1 HIT - NO ENTRY 2 - CLOSING BOT")
                         return
 
-                # LOT 2 EXIT AT TARGET 2 OR SL
+                # LOT 2 EXIT AT TARGET 2 OR ADJUSTED SL
                 if state["entry2_triggered"] and not state["lot2_exited"]:
+                    # Use dynamic SL if it's been adjusted
+                    current_sl = state["dynamic_lower_sl"] if state["sl_adjusted"] else lower_sl
+                    
                     if price <= lower_target2:
                         safe_exit_lot2(ws, "TARGET 2 HIT", price)
                         # ✅ TARGET 2 HIT - CLOSE BOT
                         close_bot("TARGET 2 HIT - CLOSING BOT")
                         return
-                    elif price >= lower_sl:
-                        safe_exit_lot2(ws, "STOPLOSS HIT", price)
+                    elif price >= current_sl:
+                        safe_exit_lot2(ws, f"STOPLOSS HIT (Adjusted SL: {current_sl})", price)
+                        # ✅ SL HIT - CLOSE BOT
+                        close_bot("STOPLOSS HIT ON LOT 2 - CLOSING BOT")
+                        return
 
                 # IF ENTRY1 ONLY, EXIT AT SL
                 if state["entry1_triggered"] and not state["entry2_triggered"] and not state["lot1_exited"] and price >= lower_sl:
@@ -503,20 +532,32 @@ def on_ticks(ws, ticks):
                 # LOT 1 EXIT AT TARGET 1 (below entry for reversal)
                 if state["entry1_triggered"] and not state["lot1_exited"] and price <= upper_target1:
                     safe_exit_lot1(ws, "TARGET 1 HIT", price)
-                    # ✅ TARGET 1 HIT - CLOSE BOT
-                    if not state["entry2_triggered"]:
+                    
+                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 PRICE
+                    if state["entry2_triggered"] and not state["sl_adjusted"]:
+                        state["dynamic_upper_sl"] = state["entry2_price"]
+                        state["sl_adjusted"] = True
+                        log(f"📍 SL ADJUSTED TO ENTRY 2 PRICE: {state['entry2_price']} (BREAKEVEN PROTECTION)")
+                    elif not state["entry2_triggered"]:
+                        # ✅ NO ENTRY 2, CLOSE BOT
                         close_bot("TARGET 1 HIT - NO ENTRY 2 - CLOSING BOT")
                         return
 
-                # LOT 2 EXIT AT TARGET 2 OR SL
+                # LOT 2 EXIT AT TARGET 2 OR ADJUSTED SL
                 if state["entry2_triggered"] and not state["lot2_exited"]:
+                    # Use dynamic SL if it's been adjusted
+                    current_sl = state["dynamic_upper_sl"] if state["sl_adjusted"] else upper_sl
+                    
                     if price <= upper_target2:
                         safe_exit_lot2(ws, "TARGET 2 HIT", price)
                         # ✅ TARGET 2 HIT - CLOSE BOT
                         close_bot("TARGET 2 HIT - CLOSING BOT")
                         return
-                    elif price >= upper_sl:
-                        safe_exit_lot2(ws, "STOPLOSS HIT", price)
+                    elif price >= current_sl:
+                        safe_exit_lot2(ws, f"STOPLOSS HIT (Adjusted SL: {current_sl})", price)
+                        # ✅ SL HIT - CLOSE BOT
+                        close_bot("STOPLOSS HIT ON LOT 2 - CLOSING BOT")
+                        return
 
                 # IF ENTRY1 ONLY, EXIT AT SL
                 if state["entry1_triggered"] and not state["entry2_triggered"] and not state["lot1_exited"] and price >= upper_sl:
@@ -586,20 +627,32 @@ def on_ticks(ws, ticks):
                 # LOT 1 EXIT AT TARGET 1 (above entry for reversal)
                 if state["entry1_triggered"] and not state["lot1_exited"] and price >= lower_target1:
                     safe_exit_lot1(ws, "TARGET 1 HIT", price)
-                    # ✅ TARGET 1 HIT - CLOSE BOT
-                    if not state["entry2_triggered"]:
+                    
+                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 PRICE
+                    if state["entry2_triggered"] and not state["sl_adjusted"]:
+                        state["dynamic_lower_sl"] = state["entry2_price"]
+                        state["sl_adjusted"] = True
+                        log(f"📍 SL ADJUSTED TO ENTRY 2 PRICE: {state['entry2_price']} (BREAKEVEN PROTECTION)")
+                    elif not state["entry2_triggered"]:
+                        # ✅ NO ENTRY 2, CLOSE BOT
                         close_bot("TARGET 1 HIT - NO ENTRY 2 - CLOSING BOT")
                         return
 
-                # LOT 2 EXIT AT TARGET 2 OR SL
+                # LOT 2 EXIT AT TARGET 2 OR ADJUSTED SL
                 if state["entry2_triggered"] and not state["lot2_exited"]:
+                    # Use dynamic SL if it's been adjusted
+                    current_sl = state["dynamic_lower_sl"] if state["sl_adjusted"] else lower_sl
+                    
                     if price >= lower_target2:
                         safe_exit_lot2(ws, "TARGET 2 HIT", price)
                         # ✅ TARGET 2 HIT - CLOSE BOT
                         close_bot("TARGET 2 HIT - CLOSING BOT")
                         return
-                    elif price <= lower_sl:
-                        safe_exit_lot2(ws, "STOPLOSS HIT", price)
+                    elif price <= current_sl:
+                        safe_exit_lot2(ws, f"STOPLOSS HIT (Adjusted SL: {current_sl})", price)
+                        # ✅ SL HIT - CLOSE BOT
+                        close_bot("STOPLOSS HIT ON LOT 2 - CLOSING BOT")
+                        return
 
                 # IF ENTRY1 ONLY, EXIT AT SL
                 if state["entry1_triggered"] and not state["entry2_triggered"] and not state["lot1_exited"] and price <= lower_sl:
