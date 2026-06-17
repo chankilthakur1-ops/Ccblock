@@ -164,7 +164,7 @@ state = {
     "entry2_spotted": False,
     "last_spot_price": None,
     
-    # ✅ DYNAMIC SL - will be updated when Target 1 hit
+    # ✅ DYNAMIC SL - will be updated when Target 1 hit (uses ENTRY 2 TRIGGER PRICE, not option premium)
     "dynamic_upper_sl": None,
     "dynamic_lower_sl": None,
     "sl_adjusted": False,
@@ -341,11 +341,11 @@ def on_ticks(ws, ticks):
                 if state["entry1_triggered"] and not state["lot1_exited"] and price >= upper_target1:
                     safe_exit_lot1(ws, "TARGET 1 HIT", price)
                     
-                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 PRICE
+                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 TRIGGER PRICE (not premium)
                     if state["entry2_triggered"] and not state["sl_adjusted"]:
-                        state["dynamic_upper_sl"] = state["entry2_price"]
+                        state["dynamic_upper_sl"] = entry2_trigger
                         state["sl_adjusted"] = True
-                        log(f"📍 SL ADJUSTED TO ENTRY 2 PRICE: {state['entry2_price']} (BREAKEVEN PROTECTION)")
+                        log(f"📍 SL ADJUSTED TO ENTRY 2 TRIGGER PRICE: {entry2_trigger} (BREAKEVEN PROTECTION)")
                     elif not state["entry2_triggered"]:
                         # ✅ NO ENTRY 2, CLOSE BOT
                         close_bot("TARGET 1 HIT - NO ENTRY 2 - CLOSING BOT")
@@ -432,11 +432,11 @@ def on_ticks(ws, ticks):
                 if state["entry1_triggered"] and not state["lot1_exited"] and price <= lower_target1:
                     safe_exit_lot1(ws, "TARGET 1 HIT", price)
                     
-                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 PRICE
+                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 TRIGGER PRICE (not premium)
                     if state["entry2_triggered"] and not state["sl_adjusted"]:
-                        state["dynamic_lower_sl"] = state["entry2_price"]
+                        state["dynamic_lower_sl"] = entry2_trigger
                         state["sl_adjusted"] = True
-                        log(f"📍 SL ADJUSTED TO ENTRY 2 PRICE: {state['entry2_price']} (BREAKEVEN PROTECTION)")
+                        log(f"📍 SL ADJUSTED TO ENTRY 2 TRIGGER PRICE: {entry2_trigger} (BREAKEVEN PROTECTION)")
                     elif not state["entry2_triggered"]:
                         # ✅ NO ENTRY 2, CLOSE BOT
                         close_bot("TARGET 1 HIT - NO ENTRY 2 - CLOSING BOT")
@@ -533,11 +533,11 @@ def on_ticks(ws, ticks):
                 if state["entry1_triggered"] and not state["lot1_exited"] and price <= upper_target1:
                     safe_exit_lot1(ws, "TARGET 1 HIT", price)
                     
-                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 PRICE
+                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 TRIGGER PRICE (not premium)
                     if state["entry2_triggered"] and not state["sl_adjusted"]:
-                        state["dynamic_upper_sl"] = state["entry2_price"]
+                        state["dynamic_upper_sl"] = entry2_trigger
                         state["sl_adjusted"] = True
-                        log(f"📍 SL ADJUSTED TO ENTRY 2 PRICE: {state['entry2_price']} (BREAKEVEN PROTECTION)")
+                        log(f"📍 SL ADJUSTED TO ENTRY 2 TRIGGER PRICE: {entry2_trigger} (BREAKEVEN PROTECTION)")
                     elif not state["entry2_triggered"]:
                         # ✅ NO ENTRY 2, CLOSE BOT
                         close_bot("TARGET 1 HIT - NO ENTRY 2 - CLOSING BOT")
@@ -628,11 +628,11 @@ def on_ticks(ws, ticks):
                 if state["entry1_triggered"] and not state["lot1_exited"] and price >= lower_target1:
                     safe_exit_lot1(ws, "TARGET 1 HIT", price)
                     
-                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 PRICE
+                    # ✅ IF ENTRY 2 ALREADY TRIGGERED, ADJUST SL TO ENTRY 2 TRIGGER PRICE (not premium)
                     if state["entry2_triggered"] and not state["sl_adjusted"]:
-                        state["dynamic_lower_sl"] = state["entry2_price"]
+                        state["dynamic_lower_sl"] = entry2_trigger
                         state["sl_adjusted"] = True
-                        log(f"📍 SL ADJUSTED TO ENTRY 2 PRICE: {state['entry2_price']} (BREAKEVEN PROTECTION)")
+                        log(f"📍 SL ADJUSTED TO ENTRY 2 TRIGGER PRICE: {entry2_trigger} (BREAKEVEN PROTECTION)")
                     elif not state["entry2_triggered"]:
                         # ✅ NO ENTRY 2, CLOSE BOT
                         close_bot("TARGET 1 HIT - NO ENTRY 2 - CLOSING BOT")
